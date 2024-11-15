@@ -34,7 +34,6 @@ impl<'a, TData> Block<'a, TData> {
     }
 
     pub fn exec(&self, data: &mut TData) {
-
         let mut curr = self;
         curr.exe_fn.as_ref()(data);
 
@@ -52,7 +51,7 @@ impl<'a, TData> Block<'a, TData> {
 
     pub fn iter(&'a self) -> BlockInterator<'a, TData> {
         BlockInterator::<'a, TData> {
-            init: self,
+            first: self,
             curr: None
         }
     }
@@ -69,7 +68,7 @@ impl<'a, TData> Display for Block<'a, TData> {
 }
 
 pub struct BlockInterator<'a, TData> {
-    init: &'a Block<'a, TData>,
+    first: &'a Block<'a, TData>,
     curr: Option<&'a Block<'a, TData>>
 }
 
@@ -78,21 +77,21 @@ impl<'a, TData> Iterator for BlockInterator<'a, TData> {
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.curr.is_none() {
-            self.curr = Some(self.init);
+            self.curr = Some(self.first);
             return self.curr;
         }
 
         match self.curr {
-            None => None,
             Some(x) => {
                 match &x.next{
-                    None => None,
                     Some(cc) => {
                         self.curr = Some(&*cc);
                         self.curr
-                    }
+                    },
+                    None => None
                 }
-            }
+            },
+            None => None
         }
     }
 }
